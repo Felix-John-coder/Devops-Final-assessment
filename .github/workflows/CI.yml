@@ -14,7 +14,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +35,9 @@ jobs:
 
   build_image: 
       runs-on: ubuntu-latest 
-      timeout-minutes: 5 
+      timeout-minutes: 1
+      outputs:
+        tags: ${{ steps.img_tag.outputs.tags }}
       needs: lint
       steps:
         - name: checkout repo 
@@ -105,6 +107,6 @@ jobs:
         run: docker load -i image.tar
       - name: run image
         run: |
-          docker run -d -name my-nginx-app-test -p 8080:8080
+          docker run -d --name my-nginx-app-test -p 8080:8080 ${{needs.build_image.outputs.tags}}
       - name:  test image
         run: ./scripts/*
