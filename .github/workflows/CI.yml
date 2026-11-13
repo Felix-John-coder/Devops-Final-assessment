@@ -70,7 +70,7 @@ jobs:
         - name: save image  
           id: saved
           run: | 
-            image=$( echo "${{steps.img_tag.outputs.tags}}" )
+            image=$( echo "${{steps.img_tag.outputs.tags}}" | head -n 10)
             echo "saving now"
             #using .tar will compress the image for faster upload and download(artifact size minimized)
             docker save "$image" -o  image.tar  
