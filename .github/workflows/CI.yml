@@ -116,6 +116,18 @@ jobs:
           docker ps
       - name:  test image
         run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/readyz; then
+              echo "Application is ready!"
+              exit 0
+            fi
+            echo "Waiting for application... ($i/30)"
+            sleep 2
+          done
+          
+          echo "Application failed to become ready"
+          exit 1
+
           chmod +x scripts/*.sh
           ./scripts/sysinfo.sh
           ./scripts/healthcheck.sh
