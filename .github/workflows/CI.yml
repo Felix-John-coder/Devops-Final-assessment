@@ -54,8 +54,7 @@ jobs:
             tags: |
               type=sha,format=long
               type=raw,value=latest 
-        - name:  check directory
-          run: pwd 
+       
           # This build and package the image 
         - name: build time 
           uses: docker/build-push-action@v6 
@@ -66,6 +65,8 @@ jobs:
             tags: ${{steps.img_tag.outputs.tags}}
             labels: ${{steps.img_tag.outputs.labels}}
             platforms: linux/amd64 
+            build-args: |
+              BUILD_SHA=${{github.SHA}}
         
         - name: check built image 
           run: docker images 

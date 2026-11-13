@@ -8,6 +8,10 @@ RUN apk update && apk upgrade --no-cache
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf 
 
+# adding build sha to image metadata
+ARG BUILD_SHA
+LABEL org.opencontainers.image.revision=$BUILD_SHA
+
 # Create a non-root user and grant access to required files
 RUN chown -R nginx:nginx /usr/share/nginx/html \
     /var/cache/nginx \
