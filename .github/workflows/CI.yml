@@ -114,7 +114,7 @@ jobs:
         run: |
           docker images
           docker ps
-      - name:  test image
+      - name:  wait for container
         run: |
           for i in {1..30}; do
             if curl -fsS http://localhost:8080/readyz; then
@@ -124,13 +124,15 @@ jobs:
             echo "Waiting for application... ($i/30)"
             sleep 2
           done
-          
+
           echo "Application failed to become ready"
           exit 1
-
+      - name: Run Test
+        run: |
           chmod +x scripts/*.sh
           ./scripts/sysinfo.sh
           ./scripts/healthcheck.sh
+          
   push:
     runs-on: ubuntu-latest
     needs: 
