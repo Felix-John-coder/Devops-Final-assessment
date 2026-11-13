@@ -143,5 +143,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: push to ghcr
         run: |
-          #docker tag ${{needs.build_image.outputs.tags}} 
+          docker tag ${{needs.build_image.outputs.tags}} ${{vars.IMAGE_NAME}}:latest
+          docker push ${{vars.IMAGE_NAME}}:latest
           docker push ${{needs.build_image.outputs.tags}} 
