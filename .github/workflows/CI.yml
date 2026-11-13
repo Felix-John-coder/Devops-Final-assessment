@@ -114,7 +114,7 @@ jobs:
         run: |
           docker images
           docker ps
-      - name:  wait for container
+      - name:  wait for container start
         run: |
           for i in {1..30}; do
             if curl -fsS http://localhost:8080/readyz; then
