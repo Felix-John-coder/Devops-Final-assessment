@@ -37,7 +37,7 @@ jobs:
       runs-on: ubuntu-latest 
       timeout-minutes: 1
       outputs:
-        tags: ${{ steps.img_tag.outputs.tags }}
+        tags: ${{ steps.saved.outputs.outputTag }}
       needs: lint
       steps:
         - name: checkout repo 
@@ -52,7 +52,7 @@ jobs:
           with: 
             images: ${{vars.IMAGE_NAME}} 
             tags: |
-              type=sha,format=long
+              type=sha,format=long 
               type=raw,value=latest 
        
           # This build and package the image 
@@ -74,6 +74,7 @@ jobs:
           id: saved
           run: | 
             image=$( echo "${{steps.img_tag.outputs.tags}}" | grep "sha" | head -n 1)
+            echo "outputTag=$image"  >> "$GITHUB_OUTPUT"
             echo "saving now"
             #using .tar will compress the image for faster upload and download(artifact size minimized)
             docker save "$image" -o  image.tar  
