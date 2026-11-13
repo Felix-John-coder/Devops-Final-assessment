@@ -117,4 +117,5 @@ jobs:
       - name:  test image
         run: |
           chmod +x scripts/*.sh
-          ./scripts/*
+          ./scripts/sysinfo.sh
+          ./scripts/healthcheck.sh
