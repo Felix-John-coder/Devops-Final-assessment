@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install ShellCheck
         run: |
@@ -29,7 +31,7 @@ jobs:
 
       - name: Run Hadolint
         run: |
-          docker run --rm -i hadolint/hadolint:v2.12.0 < app/Dockerfile
+          docker run --rm -i hadolint/hadolint:v2.12.0 < app/dockerfile
 
   build_image: 
       runs-on: ubuntu-latest 
