@@ -61,12 +61,13 @@ jobs:
             tags: |
               type=sha,prefix=sha-
               type=raw,value=latest 
-            
+        - name:  check directory
+          run: pwd 
           # This build and package the image 
         - name: build time 
           uses: docker/build-push-action@v6 
           with: 
-            context: ./app/Dockerfile 
+            context: app/
             load: true 
             push: false 
             tags: ${{steps.img_tag.outputs.tags}}
