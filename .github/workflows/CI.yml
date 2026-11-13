@@ -110,5 +110,11 @@ jobs:
       - name: run image
         run: |
           docker run -d --name my-nginx-app-test -p 8080:8080 ${{needs.build_image.outputs.tags}}
+      - name: check image
+        run: |
+          docker images
+          docker ps
       - name:  test image
-        run: ./scripts/*
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/*
