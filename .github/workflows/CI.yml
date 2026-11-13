@@ -66,7 +66,7 @@ jobs:
         - name: build time 
           uses: docker/build-push-action@v6 
           with: 
-            context: . 
+            context: ./app/Dockerfile 
             load: true 
             push: false 
             tags: ${{steps.img_tag.outputs.tags}}
