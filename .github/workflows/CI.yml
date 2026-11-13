@@ -1,0 +1,91 @@
+
+name: CI Pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: shellcheck -s bash scripts/*.sh
+
+      - name: Run Hadolint
+        run: |
+          docker run --rm -i hadolint/hadolint:v2.12.0 < app/Dockerfile
+
+  build_image: 
+      runs-on: ubuntu-latest 
+      timeout-minutes: 5 
+      needs: lint
+      steps:
+        - name: checkout repo 
+          uses: actions/checkout@v4 
+          with:
+            fetch-depth: 0
+       
+        #cached the recent built image for faster build of image...
+        - name: cache docker build 
+          uses: actions/cache@v5.0.3
+          with:
+            key: ${{runner.os}}-cache-path-${{github.sha}}
+            path: /tmp/cache 
+            restore-keys:  ${{runner.os}}-cache-path-
+          # we will use this to create a well defined image tag and labels ... good for dynamic tagging
+        - name: generate image metadata  
+          id: img_tag 
+          uses: docker/metadata-action@v5
+          with: 
+            images: ${{vars.IMAGE_NAME}} 
+            tags: |
+              type=sha,prefix=sha-
+              type=raw,value=latest 
+            
+          # This build and package the image 
+        - name: build time 
+          uses: docker/build-push-action@v6 
+          with: 
+            context: . 
+            load: true 
+            push: false 
+            tags: ${{steps.img_tag.outputs.tags}}
+            labels: ${{steps.img_tag.outputs.labels}}
+            cache-from: type=local,src=/tmp/cache
+            cache-to: type=local,dest=/tmp/cache-new 
+            platforms: linux/amd64 
+          # cleaning up the old cache file and replace it with a new one.. this increase the build time and clean up the cache directory for faster build
+        - name: cleaning up old cached file 
+          run: | 
+            rm -rf /tmp/cache 
+            mv /tmp/cache-new /tmp/cache 
+        - name: check built image 
+          run: docker images 
+        - name: save image  
+          id: saved
+          run: | 
+            image=$( echo "${{steps.img_tag.outputs.tags}}" | grep "sha-" | head -n 1)
+            echo "saving now"
+            #using .tar will compress the image for faster upload and download(artifact size minimized)
+            docker save "$image" -o  image.tar  
+        - name: save image tag 
+          run: |
+            echo "${{steps.img_tag.outputs.tags}}" > image_tag.txt 
+    
+
